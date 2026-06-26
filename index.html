@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>הדרך של בראל - Premium Dashboard</title>
+    <title>הדרך של בראל - Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
@@ -12,7 +12,6 @@
     <style>
         body { font-family: 'Rubik', sans-serif; background-color: #03060f; touch-action: manipulation; }
         .bg-card { background: linear-gradient(180deg, #0b1324 0%, #060a14 100%); border: 1px solid #16243d; }
-        .neon-glow-green { box-shadow: 0 0 15px rgba(132, 204, 22, 0.2); }
         .custom-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
@@ -22,7 +21,7 @@
 
     <script type="text/babel">
         function App() {
-            // ניהול כל הנתונים הדינמיים באפליקציה
+            // ניהול הנתונים האמיתי של בראל
             const [stats, setStats] = React.useState({
                 calories: 1450, targetCalories: 2400,
                 protein: 160, targetProtein: 210,
@@ -30,33 +29,44 @@
                 fat: 70, targetFat: 85,
                 water: 1.8, targetWater: 3.0,
                 steps: 7200, targetSteps: 10000,
-                weight: 117.8
+                weight: 117.8, lastWeightTime: "היום, 07:30"
             });
 
-            // ניהול חלונית הזנת נתונים (Modal)
-            const [activeModal, setActiveModal] = React.useState(null); // 'food' | 'water' | 'steps' | 'weight'
+            // ניהול מודאל העריכה המדויק
+            const [editingField, setEditingField] = React.useState(null); // 'calories' | 'water' | 'steps' | 'weight' | 'protein' | 'carbs' | 'fat'
             const [inputValue, setInputValue] = React.useState("");
 
             const calPercent = Math.min((stats.calories / stats.targetCalories) * 100, 100);
             const waterPercent = Math.min((stats.water / stats.targetWater) * 100, 100);
             const stepsPercent = Math.min((stats.steps / stats.targetSteps) * 100, 100);
 
+            // פונקציית שמירה המונעת ערכים אקראיים
             const handleSave = () => {
-                const num = parseFloat(inputValue);
-                if (!isNaN(num) && num > 0) {
-                    if (activeModal === 'food') setStats(p => ({ ...p, calories: p.calories + num }));
-                    if (activeModal === 'water') setStats(p => ({ ...p, water: Math.min(p.water + num/1000, 5) }));
-                    if (activeModal === 'steps') setStats(p => ({ ...p, steps: p.steps + num }));
-                    if (activeModal === 'weight') setStats(p => ({ ...p, weight: num }));
+                const val = parseFloat(inputValue);
+                if (!isNaN(val) && val >= 0) {
+                    setStats(prev => {
+                        const updated = { ...prev };
+                        if (editingField === 'calories') updated.calories = val;
+                        if (editingField === 'protein') updated.protein = val;
+                        if (editingField === 'carbs') updated.carbs = val;
+                        if (editingField === 'fat') updated.fat = val;
+                        if (editingField === 'water') updated.water = val;
+                        if (editingField === 'steps') updated.steps = val;
+                        if (editingField === 'weight') {
+                            updated.weight = val;
+                            updated.lastWeightTime = "היום, " + new Date().toLocaleTimeString('he-IL', {hour: '2-digit', minute:'2-digit'});
+                        }
+                        return updated;
+                    });
                 }
                 setInputValue("");
-                setActiveModal(null);
+                setEditingField(null);
             };
 
             return (
                 <div className="max-w-md mx-auto px-4 pt-4 space-y-4">
                     
-                    {/* 1. Header העליון מהתמונה */}
+                    {/* כותרת עליונה ומדויקת לפי העיצוב */}
                     <div className="flex justify-between items-center py-2">
                         <button className="text-gray-400 text-2xl p-1">☰</button>
                         <div className="text-center">
@@ -72,59 +82,58 @@
                         </div>
                     </div>
 
-                    {/* 2. פאנל מאקרו-נוטריאנטים משולב חצי-חצי */}
+                    {/* פאנל מאקרו-נוטריאנטים משולב חצי-חצי בדיוק כמו בתמונה */}
                     <div className="bg-card rounded-2xl p-4 shadow-2xl flex items-center justify-between gap-2">
-                        {/* טבעת קלוריות גדולה (שמאל) */}
-                        <div className="w-1/2 flex flex-col items-center justify-center border-l border-slate-800/80 pl-2">
-                            <div className="relative w-28 h-28 flex flex-col items-center justify-center cursor-pointer active:scale-95 transition-transform" onClick={() => setActiveModal('food')}>
+                        {/* טבעת קלוריות גדולה (שמאל) - לחיצה עליה מאפשרת עריכה מדויקת */}
+                        <div className="w-1/2 flex flex-col items-center justify-center border-l border-slate-800/80 pl-2 cursor-pointer active:scale-95 transition-transform" onClick={() => { setInputValue(stats.calories); setEditingField('calories'); }}>
+                            <div className="relative w-28 h-28 flex flex-col items-center justify-center">
                                 <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
                                     <circle cx="50" cy="50" r="40" stroke="#0e1624" strokeWidth="6" fill="transparent" />
                                     <circle cx="50" cy="50" r="40" stroke="#84cc16" strokeWidth="6" fill="transparent" 
                                             strokeDasharray="251.2" strokeDashoffset={251.2 - (251.2 * calPercent) / 100} strokeLinecap="round" />
                                 </svg>
                                 <div className="absolute flex flex-col items-center justify-center">
-                                    <span className="text-[9px] text-gray-400 uppercase font-bold tracking-wider">קלוריות</span>
+                                    <span className="text-[9px] text-gray-400 font-bold tracking-wider">🔥 קלוריות</span>
                                     <span className="text-xl font-black font-mono tracking-tight">{stats.calories.toLocaleString()}</span>
                                     <span className="text-[9px] text-gray-500">/ {stats.targetCalories} קק"ל</span>
                                 </div>
                             </div>
-                            <p className="text-[9px] text-gray-400 mt-2 font-medium text-center">נותרו עוד {stats.targetCalories - stats.calories} קק"ל ליעד</p>
+                            <p className="text-[9px] text-gray-400 mt-2 font-medium text-center">נותרו לך {stats.targetCalories - stats.calories} קק"ל ליעד</p>
                         </div>
 
-                        {/* מדדי המאקרו (ימין) */}
+                        {/* מדדי המאקרו (ימין) - לחיצה על השורות מאפשרת עריכת הגרמים */}
                         <div className="w-1/2 space-y-2.5 pr-2">
                             <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">מאקרו-נוטריאנטים</div>
                             {/* חלבון */}
-                            <div className="space-y-1">
+                            <div className="space-y-1 cursor-pointer" onClick={() => { setInputValue(stats.protein); setEditingField('protein'); }}>
                                 <div className="flex justify-between text-[10px] font-medium"><span className="text-gray-300">🧪 חלבון</span><span className="text-gray-400">{stats.protein}/{stats.targetProtein}g</span></div>
                                 <div className="w-full bg-slate-900 h-1.5 rounded-full"><div className="bg-lime-500 h-full rounded-full transition-all" style={{ width: `${(stats.protein/stats.targetProtein)*100}%` }}></div></div>
                             </div>
                             {/* פחמימות */}
-                            <div className="space-y-1">
+                            <div className="space-y-1 cursor-pointer" onClick={() => { setInputValue(stats.carbs); setEditingField('carbs'); }}>
                                 <div className="flex justify-between text-[10px] font-medium"><span className="text-gray-300">🌾 פחמימות</span><span className="text-gray-400">{stats.carbs}/{stats.targetCarbs}g</span></div>
                                 <div className="w-full bg-slate-900 h-1.5 rounded-full"><div className="bg-cyan-500 h-full rounded-full transition-all" style={{ width: `${(stats.carbs/stats.targetCarbs)*100}%` }}></div></div>
                             </div>
                             {/* שומן */}
-                            <div className="space-y-1">
+                            <div className="space-y-1 cursor-pointer" onClick={() => { setInputValue(stats.fat); setEditingField('fat'); }}>
                                 <div className="flex justify-between text-[10px] font-medium"><span className="text-gray-300">🔥 שומן</span><span className="text-gray-400">{stats.fat}/{stats.targetFat}g</span></div>
                                 <div className="w-full bg-slate-900 h-1.5 rounded-full"><div className="bg-orange-500 h-full rounded-full transition-all" style={{ width: `${(stats.fat/stats.targetFat)*100}%` }}></div></div>
                             </div>
-                            {/* פיל סטטוס קטן */}
                             <div className="inline-block bg-slate-950/80 px-2 py-0.5 rounded-full border border-slate-800 text-[9px] text-emerald-400 font-bold">↗ 120- קל' מאתמול</div>
                         </div>
                     </div>
 
-                    {/* 3. גריד המרכיבים המרכזי (מים, צעדים, משקל) */}
-                    <div className="grid grid-cols-3 gap-3.5">
+                    {/* גריד המרכיבים המרכזי בעיצוב פרימיום מושלם (מים, צעדים, משקל) */}
+                    <div className="grid grid-cols-3 gap-3">
                         
-                        {/* כרטיס מים + בקבוק ויזואלי ריאליסטי */}
-                        <div className="bg-card rounded-2xl p-3 flex flex-col justify-between items-center cursor-pointer active:scale-95 transition-transform relative overflow-hidden" onClick={() => setActiveModal('water')}>
+                        {/* כרטיס מים - לחיץ ובעל יכולת עריכה מדויקת */}
+                        <div className="bg-card rounded-2xl p-3 flex flex-col justify-between items-center cursor-pointer active:scale-95 transition-transform" onClick={() => { setInputValue(stats.water); setEditingField('water'); }}>
                             <div className="flex justify-between w-full items-center text-[10px] text-gray-400"><span>מים</span><span>💧</span></div>
-                            <div className="my-3 text-center">
-                                <p className="text-sm font-black text-cyan-400 font-mono">{stats.water.toFixed(1)} / {stats.targetWater}</p>
+                            <div className="my-2 text-center">
+                                <p className="text-sm font-black text-cyan-400 font-mono">{stats.water} / {stats.targetWater}</p>
                                 <p className="text-[9px] text-gray-500">ליטר ({Math.round(waterPercent)}%)</p>
                             </div>
-                            {/* איור בקבוק מים דינמי שמתמלא */}
+                            {/* בקבוק מים ויזואלי המתמלא לפי האחוז האמיתי */}
                             <div className="w-10 h-20 border border-slate-700 rounded-t-lg rounded-b-md relative overflow-hidden bg-slate-950/80 shadow-inner">
                                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-cyan-600 to-cyan-400 transition-all duration-500" style={{ height: `${waterPercent}%` }}>
                                     <div className="w-full h-1 bg-white/40 absolute top-0 blur-[1px]"></div>
@@ -132,14 +141,14 @@
                             </div>
                         </div>
 
-                        {/* כרטיס צעדים + גרף עמודות מיניאטורי */}
-                        <div className="bg-card rounded-2xl p-3 flex flex-col justify-between cursor-pointer active:scale-95 transition-transform" onClick={() => setActiveModal('steps')}>
+                        {/* כרטיס צעדים - לחיץ ובעל יכולת עריכה מדויקת */}
+                        <div className="bg-card rounded-2xl p-3 flex flex-col justify-between cursor-pointer active:scale-95 transition-transform" onClick={() => { setInputValue(stats.steps); setEditingField('steps'); }}>
                             <div className="flex justify-between w-full items-center text-[10px] text-gray-400"><span>צעדים</span><span>👟</span></div>
                             <div className="my-2">
                                 <p className="text-base font-black text-lime-400 font-mono">{stats.steps.toLocaleString()}</p>
-                                <p className="text-[9px] text-gray-500">{Math.round(stepsPercent)}% מהיעד היומי</p>
+                                <p className="text-[9px] text-gray-500">{Math.round(stepsPercent)}% מהיעד</p>
                             </div>
-                            {/* גרף עמודות קטן המדמה את התמונה */}
+                            {/* גרף עמודות מיניאטורי */}
                             <div className="flex items-end justify-between h-12 pt-2 px-1 bg-slate-950/40 rounded-lg border border-slate-900/60">
                                 {[40, 60, 35, 75, 90, 50, 65].map((h, i) => (
                                     <div key={i} className="w-[3px] bg-lime-500 rounded-t" style={{ height: `${h}%` }}></div>
@@ -148,89 +157,94 @@
                             <div className="flex justify-between text-[7px] text-gray-600 mt-1 font-mono"><span>00:00</span><span>12:00</span></div>
                         </div>
 
-                        {/* כרטיס משקל + גרף קו מגמה מגניב */}
-                        <div className="bg-card rounded-2xl p-3 flex flex-col justify-between cursor-pointer active:scale-95 transition-transform" onClick={() => setActiveModal('weight')}>
+                        {/* כרטיס משקל - לחיץ לחלוטין ובעל יכולת עריכה מדויקת */}
+                        <div className="bg-card rounded-2xl p-3 flex flex-col justify-between cursor-pointer active:scale-95 transition-transform" onClick={() => { setInputValue(stats.weight); setEditingField('weight'); }}>
                             <div className="flex justify-between w-full items-center text-[10px] text-gray-400"><span>משקל</span><span>⚖️</span></div>
                             <div className="my-2">
-                                <p className="text-base font-black text-purple-400 font-mono">{stats.weight} <span className="text-[9px] font-normal text-gray-400">ק"ג</span></p>
-                                <p className="text-[8px] text-gray-500">השקילה האחרונה היום</p>
+                                <div className="bg-slate-950/60 border border-slate-800/80 p-1.5 rounded-xl text-center shadow-inner">
+                                    <p className="text-sm font-black text-purple-400 font-mono">{stats.weight} <span className="text-[8px] font-normal text-gray-400">ק"ג</span></p>
+                                </div>
+                                <p className="text-[7px] text-gray-500 mt-1 text-center font-medium">שקילה אחרונה: {stats.lastWeightTime}</p>
                             </div>
-                            {/* גרף קו (SVG) המציג מגמת ירידה עדינה */}
-                            <div className="h-12 w-full bg-slate-950/40 rounded-lg border border-slate-900/60 overflow-hidden relative pt-2">
+                            {/* גרף קו מגמה סגול ויוקרתי */}
+                            <div className="h-10 w-full bg-slate-950/40 rounded-lg border border-slate-900/60 overflow-hidden relative pt-2">
                                 <svg className="w-full h-full" viewBox="0 0 100 40">
-                                    <path d="M0 10 Q25 15 50 25 T100 35" fill="none" stroke="#a855f7" strokeWidth="2" />
-                                    <circle cx="50" cy="25" r="2" fill="#fff" />
+                                    <path d="M0 15 Q25 10 50 22 T100 32" fill="none" stroke="#a855f7" strokeWidth="2" />
+                                    <circle cx="50" cy="22" r="2.5" fill="#fff" />
                                 </svg>
                             </div>
-                            <span className="text-[7px] text-gray-600 mt-1 text-center block">גרף מגמה שבועי</span>
                         </div>
 
                     </div>
 
-                    {/* 4. שורת הוספת אוכל מהירה וקרוסלת פריטים מהתמונה */}
+                    {/* שורת הוספת אוכל מהירה וקרוסלת פריטים */}
                     <div className="bg-card rounded-2xl p-4 flex items-center justify-between gap-4">
-                        <div className="flex items-center gap-3 cursor-pointer" onClick={() => setActiveModal('food')}>
+                        <div className="flex items-center gap-3 cursor-pointer" onClick={() => { setInputValue(""); setEditingField('calories'); }}>
                             <div className="w-10 h-10 rounded-full bg-lime-500/20 border border-lime-500/40 flex items-center justify-center text-lime-400 font-bold text-xl shadow-lg shadow-lime-500/10">+</div>
                             <div>
-                                <h3 className="text-xs font-bold text-gray-100">הוסף אוכל</h3>
+                                <h3 className="text-xs font-bold text-gray-100">+ הוסף אוכל</h3>
                                 <p className="text-[9px] text-gray-500">מהיר, קל ופשוט</p>
                             </div>
                         </div>
-                        {/* קרוסלת פריטים מהירים (סלד, בננה, חזה עוף) */}
+                        {/* קרוסלת פריטים מהירים המוסיפים ערכים קבועים בלחיצה */}
                         <div className="flex gap-2 overflow-x-auto custom-scrollbar pl-1">
-                            <div className="w-10 h-10 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-sm shadow-inner cursor-pointer" onClick={() => setStats(p => ({...p, calories: p.calories + 350}))}>🥗</div>
-                            <div className="w-10 h-10 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-sm shadow-inner cursor-pointer" onClick={() => setStats(p => ({...p, calories: p.calories + 105}))}>🍌</div>
-                            <div className="w-10 h-10 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-sm shadow-inner cursor-pointer" onClick={() => setStats(p => ({...p, calories: p.calories + 220}))}>🍗</div>
+                            <div className="w-10 h-10 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-sm shadow-inner cursor-pointer active:scale-90 transition-transform" onClick={() => setStats(p => ({...p, calories: p.calories + 350, protein: p.protein + 30}))}>🥗</div>
+                            <div className="w-10 h-10 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-sm shadow-inner cursor-pointer active:scale-90 transition-transform" onClick={() => setStats(p => ({...p, calories: p.calories + 105, carbs: p.carbs + 27}))}>🍌</div>
+                            <div className="w-10 h-10 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-sm shadow-inner cursor-pointer active:scale-90 transition-transform" onClick={() => setStats(p => ({...p, calories: p.calories + 220, protein: p.protein + 45}))}>🍗</div>
                             <div className="w-10 h-10 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-xs text-gray-500 font-bold">•••</div>
                         </div>
                     </div>
 
-                    {/* 5. פאנל יעד תחתון ארוך */}
+                    {/* פאנל יעד תחתון ארוך */}
                     <div className="bg-card rounded-2xl p-4 flex flex-col gap-2">
                         <div className="flex justify-between items-center text-xs">
                             <div className="flex items-center gap-2"><span>🎯</span><span className="font-bold">יעד יומי</span></div>
                             <span className="text-gray-400 text-[10px]">עוד {stats.targetCalories - stats.calories} קק"ל ליעד</span>
                         </div>
                         <div className="w-full bg-slate-950 h-2.5 rounded-full p-0.5 border border-slate-900">
-                            <div className="bg-gradient-to-r from-rose-500 to-pink-500 h-full rounded-full transition-all" style={{ width: `${calPercent}%` }}></div>
+                            <div className="bg-gradient-to-r from-rose-500 to-pink-500 h-full rounded-full transition-all duration-300" style={{ width: `${calPercent}%` }}></div>
                         </div>
                         <p className="text-[9px] text-gray-500 text-center">המשך כך, אתה בדרך הנכונה!</p>
                     </div>
 
-                    {/* פאנל הזנת נתונים צף (Modal) - נפתח בלחיצה על המדדים */}
-                    {activeModal && (
-                        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-end justify-center z-50 p-4" onClick={() => setActiveModal(null)}>
+                    {/* פאנל הזנת נתונים צף ויוקרתי (Modal) - נפתח בלחיצה על כל מדד באפליקציה */}
+                    {editingField && (
+                        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-end justify-center z-50 p-4" onClick={() => setEditingField(null)}>
                             <div className="bg-[#0b1324] border border-[#16243d] rounded-t-3xl p-6 w-full max-w-md space-y-4 shadow-2xl" onClick={e => e.stopPropagation()}>
                                 <div className="flex justify-between items-center border-b border-slate-800 pb-3">
-                                    <h3 className="text-sm font-bold">
-                                        {activeModal === 'food' && "➕ הוספת קלוריות לתפריט"}
-                                        {activeModal === 'water' && "💧 עדכון צריכת מים (הזן במ"ל, למשל 250)"}
-                                        {activeModal === 'steps' && "👟 הוספת צעדים למונה היומי"}
-                                        {activeModal === 'weight' && "⚖️ עדכון משקל גוף עדכני"}
+                                    <h3 className="text-sm font-bold text-gray-200">
+                                        {editingField === 'calories' && "✏️ עריכת קלוריות יומיות"}
+                                        {editingField === 'protein' && "✏️ עריכת חלבון (גרם)"}
+                                        {editingField === 'carbs' && "✏️ עריכת פחמימות (גרם)"}
+                                        {editingField === 'fat' && "✏️ עריכת שומן (גרם)"}
+                                        {editingField === 'water' && "✏️ עריכת כמות מים כוללת (ליטרים)"}
+                                        {editingField === 'steps' && "✏️ עריכת מונה צעדים יומי"}
+                                        {editingField === 'weight' && "⚖️ עדכון משקל גוף מדויק"}
                                     </h3>
-                                    <button onClick={() => setActiveModal(null)} className="text-gray-500 text-sm font-bold">סגור</button>
+                                    <button onClick={() => setEditingField(null)} className="text-gray-500 text-xs font-bold hover:text-white">ביטול</button>
                                 </div>
                                 <input 
                                     type="number" 
+                                    step={editingField === 'water' || editingField === 'weight' ? "0.1" : "1"}
                                     autoFocus
-                                    placeholder="הקלד מספר כאן..." 
+                                    placeholder="הזן ערך מספרי מדויק..." 
                                     value={inputValue}
                                     onChange={e => setInputValue(e.target.value)}
                                     className="w-full bg-slate-950 border border-slate-800 p-3 rounded-xl text-center font-mono font-bold text-xl text-lime-400 focus:outline-none focus:border-lime-500"
                                 />
                                 <button onClick={handleSave} className="w-full bg-lime-500 hover:bg-lime-600 py-3 rounded-xl text-black font-bold text-sm transition-all shadow-lg shadow-lime-500/20">
-                                    שמור ועדכן מדדים
+                                    שמור ועדכן את ה-Dashboard
                                 </button>
                             </div>
                         </div>
                     )}
 
-                    {/* 6. בר ניווט תחתון קבוע (Fixed) כמו בתמונה */}
+                    {/* בר ניווט תחתון קבוע בעיצוב המקורי */}
                     <div className="fixed bottom-0 left-0 right-0 bg-[#070b14]/95 backdrop-blur-md border-t border-[#16243d] py-2 px-6 z-40">
                         <div className="max-w-md mx-auto flex justify-between items-center">
                             <div className="flex flex-col items-center text-lime-400 cursor-pointer"><span className="text-lg">📊</span><span className="text-[8px] font-bold mt-0.5">דאשבורד</span></div>
-                            <div className="flex flex-col items-center text-gray-500 cursor-pointer" onClick={() => setActiveModal('food')}><span className="text-lg">🥗</span><span className="text-[8px] mt-0.5">יומן אוכל</span></div>
-                            <div className="w-12 h-12 bg-gradient-to-tr from-lime-500 to-emerald-400 rounded-full flex items-center justify-center text-black font-black text-xl shadow-lg shadow-lime-500/30 -mt-5 cursor-pointer transform active:scale-90 transition-transform" onClick={() => setActiveModal('food')}>+</div>
+                            <div className="flex flex-col items-center text-gray-500 cursor-pointer" onClick={() => { setInputValue(""); setEditingField('calories'); }}><span className="text-lg">4️⃣9️⃣</span><span className="text-[8px] mt-0.5">יומן אוכל</span></div>
+                            <div className="w-12 h-12 bg-gradient-to-tr from-lime-500 to-emerald-400 rounded-full flex items-center justify-center text-black font-black text-xl shadow-lg shadow-lime-500/30 -mt-5 cursor-pointer transform active:scale-90 transition-transform" onClick={() => { setInputValue(""); setEditingField('calories'); }}>+</div>
                             <div className="flex flex-col items-center text-gray-500 cursor-pointer"><span className="text-lg">📈</span><span className="text-[8px] mt-0.5">סטטיסטיקות</span></div>
                             <div className="flex flex-col items-center text-gray-500 cursor-pointer"><span className="text-lg">⚙️</span><span className="text-[8px] mt-0.5">הגדרות</span></div>
                         </div>
