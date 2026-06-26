@@ -108,3 +108,12 @@
                 </div>
             );
         }
+
+        // רינדור בטוח אחרי שהסקריפטים נטענו
+        window.onload = () => {
+            const root = ReactDOM.createRoot(document.getElementById('root'));
+            root.render(React.createElement(App));
+        };
+    </script>
+</body>
+</html>
