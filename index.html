@@ -3,66 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>הדרך של בראל</title>
+    <title>הדרך של בראל - Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
-    <style>
-        body { background-color: #03060f; }
-        .panel { border: 1px solid #162235; background: linear-gradient(145deg, #0b121f, #070b14); }
-    </style>
+    <style>body { background-color: #03060f; color: white; }</style>
 </head>
-<body class="text-white antialiased select-none pb-10">
+<body class="pb-20">
     <div id="root"></div>
 
     <script type="text/babel">
         function App() {
-            // הסטייט שלנו - כאן מנוהלים כל המדדים
-            const [data, setData] = React.useState({ calories: 1650, water: 1250 });
+            // הנתונים המנוהלים של האפליקציה
+            const [stats, setStats] = React.useState({
+                calories: 1650, water: 1250, weight: 82.5, steps: 5200, food: ""
+            });
+
+            const updateStat = (key, value) => setStats(prev => ({...prev, [key]: value}));
 
             return (
-                <div className="max-w-md mx-auto p-4 space-y-4">
-                    {/* Header */}
-                    <div className="flex justify-between items-center py-2">
-                        <div className="text-gray-400 text-2xl">☰</div>
-                        <div className="text-center">
-                            <h1 className="text-base font-bold">בוקר טוב, בראל 👋</h1>
-                            <p className="text-[10px] text-gray-500 font-mono">26 ביוני 2026</p>
+                <div className="max-w-md mx-auto p-4 space-y-6">
+                    <h1 className="text-xl font-bold">הדרך של בראל 👋</h1>
+
+                    {/* פאנל קלוריות ומזון */}
+                    <div className="p-4 rounded-xl border border-slate-800 bg-slate-900/50">
+                        <div className="flex justify-between items-center mb-4">
+                            <span className="text-sm">קלוריות: {stats.calories} / 2400</span>
+                            <button onClick={() => updateStat('calories', stats.calories + 100)} className="bg-lime-600 px-3 py-1 rounded text-xs">+100</button>
                         </div>
-                        <div className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700">👤</div>
+                        <input type="text" placeholder="הזן מזון (למשל: חזה עוף)" className="w-full bg-slate-800 p-2 rounded text-sm" />
                     </div>
 
-                    {/* Macro Panel - העיצוב המקורי */}
-                    <div className="panel rounded-2xl p-5">
-                        <div className="flex justify-between items-center">
-                            <div className="space-y-2">
-                                <h2 className="text-[11px] font-bold text-gray-400 uppercase border-b border-slate-800 pb-1">מאקרו-נוטריאנטים</h2>
-                                <div className="text-[11px]">🧪 חלבון: 160/210g</div>
-                                <div className="text-[11px]">🌾 פחמימות: 270/300g</div>
-                                <div className="text-[11px]">🔥 שומן: 70/85g</div>
-                            </div>
-                            <div className="w-24 h-24 rounded-full border-4 border-[#0e1624] border-t-lime-500 flex flex-col items-center justify-center cursor-pointer active:scale-95" 
-                                 onClick={() => setData({...data, calories: data.calories + 100})}>
-                                <span className="text-[9px] text-gray-500">קלוריות</span>
-                                <span className="text-lg font-black">{data.calories}</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Water Panel */}
-                    <div className="panel rounded-2xl p-5">
-                        <h2 className="text-[11px] font-bold text-gray-400 mb-3">צריכת מים: {data.water}ml</h2>
+                    {/* פאנל מים */}
+                    <div className="p-4 rounded-xl border border-slate-800 bg-slate-900/50">
+                        <p className="text-sm mb-2">מים: {stats.water}ml / 3000ml</p>
                         <div className="flex gap-2">
-                            <button className="flex-1 bg-cyan-900/50 py-2 rounded-lg text-xs font-bold border border-cyan-800" onClick={() => setData({...data, water: data.water + 250})}>+250ml</button>
-                            <button className="flex-1 bg-cyan-900/50 py-2 rounded-lg text-xs font-bold border border-cyan-800" onClick={() => setData({...data, water: data.water + 500})}>+500ml</button>
+                            <button onClick={() => updateStat('water', stats.water + 250)} className="flex-1 bg-cyan-700 py-2 rounded text-xs">+250ml</button>
+                            <button onClick={() => updateStat('water', stats.water + 500)} className="flex-1 bg-cyan-700 py-2 rounded text-xs">+500ml</button>
+                        </div>
+                    </div>
+
+                    {/* פאנל צעדים ומשקל */}
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="p-4 rounded-xl border border-slate-800 bg-slate-900/50">
+                            <p className="text-xs text-gray-400">צעדים</p>
+                            <p className="text-lg font-bold">{stats.steps}</p>
+                        </div>
+                        <div className="p-4 rounded-xl border border-slate-800 bg-slate-900/50">
+                            <p className="text-xs text-gray-400">משקל (kg)</p>
+                            <p className="text-lg font-bold">{stats.weight}</p>
                         </div>
                     </div>
                 </div>
             );
         }
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
+        const root = ReactDOM.createRoot(document.getElementById8('root'));
         root.render(<App />);
     </script>
 </body>
