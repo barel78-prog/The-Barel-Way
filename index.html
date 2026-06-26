@@ -2,118 +2,72 @@
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>הדרך של בראל - The Barel Way</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>הדרך של בראל</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     
-    <!-- React + ReactDOM (production - יציב יותר) -->
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
     <style>
-        body { 
-            font-family: 'Rubik', sans-serif; 
-            background-color: #03060f; 
-            color: white; 
-            touch-action: manipulation; 
-        }
-        .bg-card { 
-            background: linear-gradient(180deg, #0b1324 0%, #060a14 100%); 
-            border: 1px solid #16243d; 
-        }
-        .custom-scrollbar::-webkit-scrollbar { display: none; }
+        body { font-family: 'Rubik', sans-serif; background-color: #03060f; color: white; }
+        .bg-card { background: linear-gradient(180deg, #0b1324 0%, #060a14 100%); border: 1px solid #16243d; }
     </style>
 </head>
-<body class="antialiased select-none pb-28">
+<body class="antialiased pb-28">
 
-    <div id="root"></div>
+<div id="root"></div>
 
-    <script type="text/babel" data-presets="react">
-        function App() {
-            const [activeTab, setActiveTab] = React.useState('dashboard'); 
-            
-            const [targets, setTargets] = React.useState({
-                calories: 2400, protein: 210, carbs: 300, fat: 85, water: 2.5, steps: 10000
-            });
+<script type="text/babel" data-presets="react">
+    const { useState, useMemo } = React;
 
-            const [foodDiary, setFoodDiary] = React.useState([
-                { id: 1, name: 'חזה עוף מבושל ואורז לבן', calories: 900, protein: 90, carbs: 100, fat: 15, time: '13:15' },
-                { id: 2, name: 'שייק חלבון ויוגורט פרו', calories: 400, protein: 50, carbs: 20, fat: 5, time: '16:45' },
-                { id: 3, name: 'חטיף חלבון וחופן שקדים', calories: 300, protein: 20, carbs: 20, fat: 10, time: '18:30' }
-            ]);
+    function App() {
+        const [activeTab, setActiveTab] = useState('dashboard');
+        const [targets, setTargets] = useState({ calories: 2400, protein: 210, carbs: 300, fat: 85, water: 2.5, steps: 10000 });
+        const [foodDiary, setFoodDiary] = useState([
+            { id: 1, name: 'חזה עוף מבושל ואורז לבן', calories: 900, protein: 90, carbs: 100, fat: 15, time: '13:15' },
+            { id: 2, name: 'שייק חלבון ויוגורט פרו', calories: 400, protein: 50, carbs: 20, fat: 5, time: '16:45' }
+        ]);
+        const [progress, setProgress] = useState({ water: 1.8, steps: 7200, weight: 105, lastWeightTime: "היום, 19:03" });
+        const [modalType, setModalType] = useState(null);
+        const [scanStatus, setScanStatus] = useState('idle');
+        const [detectedFood, setDetectedFood] = useState(null);
 
-            const [progress, setProgress] = React.useState({
-                water: 1.8, steps: 7200, weight: 105, lastWeightTime: "היום, 19:03"
-            });
+        const totals = useMemo(() => {
+            return foodDiary.reduce((acc, item) => {
+                acc.calories += item.calories || 0;
+                acc.protein += item.protein || 0;
+                acc.carbs += item.carbs || 0;
+                acc.fat += item.fat || 0;
+                return acc;
+            }, { calories: 0, protein: 0, carbs: 0, fat: 0 });
+        }, [foodDiary]);
 
-            const [modalType, setModalType] = React.useState(null); 
-            const [inputValue, setInputValue] = React.useState("");
-            const [scanStatus, setScanStatus] = React.useState('idle'); 
-            const [detectedFood, setDetectedFood] = React.useState(null);
+        const calPercent = targets.calories ? Math.min((totals.calories / targets.calories) * 100, 100) : 0;
 
-            const totals = React.useMemo(() => {
-                return foodDiary.reduce((acc, item) => {
-                    acc.calories += item.calories || 0;
-                    acc.protein += item.protein || 0;
-                    acc.carbs += item.carbs || 0;
-                    acc.fat += item.fat || 0;
-                    return acc;
-                }, { calories: 0, protein: 0, carbs: 0, fat: 0 });
-            }, [foodDiary]);
-
-            const getDynamicGreeting = () => {
-                const hour = new Date().getHours();
-                if (hour >= 5 && hour < 12) return "בוקר טוב";
-                if (hour >= 12 && hour < 17) return "צהריים טובים";
-                if (hour >= 17 && hour < 22) return "ערב טוב";
-                return "לילה טוב";
-            };
-
-            const calPercent = targets.calories ? Math.min((totals.calories / targets.calories) * 100, 100) : 0;
-            const waterPercent = targets.water ? Math.min((progress.water / targets.water) * 100, 100) : 0;
-            const stepsPercent = targets.steps ? Math.min((progress.steps / targets.steps) * 100, 100) : 0;
-
-            const handleCameraCapture = () => {
-                setScanStatus('loading');
-                setTimeout(() => {
-                    setDetectedFood({
-                        name: 'דג סלמון בתנור עם בטטה (נותח בצילום 📸)',
-                        calories: 550, protein: 42, carbs: 35, fat: 18
-                    });
-                    setScanStatus('done');
-                }, 1500);
-            };
-
-            const addScannedToDiary = () => {
-                if (detectedFood) {
-                    const currentTime = new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' });
-                    setFoodDiary(prev => [...prev, { id: Date.now(), ...detectedFood, time: currentTime }]);
-                }
-                setModalType(null);
-                setScanStatus('idle');
-                setDetectedFood(null);
-            };
-
-            // ... (שאר הקוד של ה-Return נשאר בדיוק כמו שהיה אצלך - רק העתקתי אותו בשלמות)
-
-            return (
-                <div className="max-w-md mx-auto px-4 pt-4 pb-24 space-y-4">
-                    {/* כל ה-UI שלך - Header, Dashboard, Diary, Stats, Settings, Modals, Bottom Nav */}
-                    {/* (העתק כאן את כל החלק של return מהקוד המקורי שלך, החל מה-Header ועד סוף ה-Bottom Navigation) */}
-                    
-                    {/* כדי לחסוך מקום - תעתיק את כל החלק הזה מהקוד המקורי שלך */}
-                    {/* אם תרצה אני אשלח לך את הקובץ המלא עם כל החלקים */}
-                </div>
-            );
-        }
-
-        // רינדור בטוח אחרי שהסקריפטים נטענו
-        window.onload = () => {
-            const root = ReactDOM.createRoot(document.getElementById('root'));
-            root.render(React.createElement(App));
+        const getDynamicGreeting = () => {
+            const hour = new Date().getHours();
+            if (hour >= 5 && hour < 12) return "בוקר טוב";
+            if (hour >= 12 && hour < 17) return "צהריים טובים";
+            if (hour >= 17 && hour < 22) return "ערב טוב";
+            return "לילה טוב";
         };
-    </script>
+
+        // ... (שאר הפונקציות כמו handleCameraCapture וכו' - נוסיף בהמשך)
+
+        return React.createElement('div', { className: "max-w-md mx-auto px-4 pt-4 space-y-4" },
+            // כאן יהיה כל ה-UI
+            React.createElement('h1', { className: "text-2xl font-bold text-center" }, getDynamicGreeting() + ", בראל 👋"),
+            React.createElement('p', { className: "text-center text-lime-400" }, "האפליקציה עובדת! 🎉")
+        );
+    }
+
+    window.onload = () => {
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(React.createElement(App));
+    };
+</script>
 </body>
 </html>
