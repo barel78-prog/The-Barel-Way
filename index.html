@@ -2,46 +2,73 @@
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>הדרך של בראל</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
-    <style>body { background-color: #03060f; color: white; }</style>
+    <style>
+        body { background-color: #03060f; color: white; font-family: sans-serif; }
+        .bg-card { background: linear-gradient(180deg, #0b121f 0%, #070b14 100%); border: 1px solid #162235; }
+    </style>
 </head>
-<body>
+<body class="p-4 pb-20">
     <div id="root"></div>
 
     <script type="text/babel">
         function App() {
             const [stats, setStats] = React.useState({
-                calories: 1650, water: 1250, weight: 82.5, steps: 5200
+                calories: 1450, water: 1.8, steps: 7200, weight: 117.8
             });
 
             return (
-                <div className="max-w-md mx-auto p-4 space-y-4">
-                    <h1 className="text-xl font-bold mb-4">הדרך של בראל 👋</h1>
-                    
-                    <div className="bg-slate-900 p-4 rounded-xl border border-slate-800">
-                        <p>קלוריות: {stats.calories}</p>
-                        <button onClick={() => setStats({...stats, calories: stats.calories + 100})} className="bg-lime-600 px-2 py-1 rounded text-xs mt-2">+100</button>
+                <div className="max-w-md mx-auto space-y-4">
+                    {/* Header */}
+                    <div className="flex justify-between items-center mb-6">
+                        <div className="text-2xl text-gray-400">☰</div>
+                        <div className="text-center">
+                            <h1 className="text-sm font-bold">בוקר טוב, בראל 👋</h1>
+                            <p className="text-[10px] text-gray-500">26 ביוני 2026</p>
+                        </div>
+                        <div className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700">👤</div>
                     </div>
 
-                    <div className="bg-slate-900 p-4 rounded-xl border border-slate-800">
-                        <p>מים: {stats.water}ml</p>
-                        <button onClick={() => setStats({...stats, water: stats.water + 250})} className="bg-cyan-700 px-2 py-1 rounded text-xs mt-2">+250ml</button>
+                    {/* Macro Panel - העיצוב המדוייק */}
+                    <div className="bg-card p-5 rounded-2xl grid grid-cols-2 gap-4">
+                        <div className="space-y-3">
+                            <h2 className="text-[10px] text-gray-400 uppercase">מאקרו-נוטריאנטים</h2>
+                            <div className="text-[10px]">חלבון: 160/210g <div className="w-full bg-slate-900 h-1.5 mt-1 rounded-full"><div className="bg-green-500 h-1.5 w-[75%] rounded-full"></div></div></div>
+                            <div className="text-[10px]">פחמימות: 270/300g <div className="w-full bg-slate-900 h-1.5 mt-1 rounded-full"><div className="bg-cyan-500 h-1.5 w-[67%] rounded-full"></div></div></div>
+                            <div className="text-[10px]">שומן: 70/85g <div className="w-full bg-slate-900 h-1.5 mt-1 rounded-full"><div className="bg-orange-500 h-1.5 w-[79%] rounded-full"></div></div></div>
+                        </div>
+                        <div className="flex flex-col items-center justify-center border-r border-slate-800">
+                            <div className="text-[10px] text-gray-500">קלוריות</div>
+                            <div className="text-2xl font-black text-green-400">{stats.calories}</div>
+                            <div className="text-[10px] text-gray-500">/ 2,400 קק"ל</div>
+                        </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="bg-slate-900 p-4 rounded-xl border border-slate-800">
-                            <p className="text-gray-400 text-xs">צעדים</p>
-                            <p>{stats.steps}</p>
+                    {/* Water, Steps, Weight Grid */}
+                    <div className="grid grid-cols-3 gap-2">
+                        <div className="bg-card p-3 rounded-2xl text-center" onClick={() => setStats({...stats, water: stats.water + 0.1})}>
+                            <p className="text-[9px] text-gray-400">מים</p>
+                            <p className="text-xs font-bold">{stats.water.toFixed(1)} L</p>
                         </div>
-                        <div className="bg-slate-900 p-4 rounded-xl border border-slate-800">
-                            <p className="text-gray-400 text-xs">משקל</p>
-                            <p>{stats.weight}</p>
+                        <div className="bg-card p-3 rounded-2xl text-center" onClick={() => setStats({...stats, steps: stats.steps + 500})}>
+                            <p className="text-[9px] text-gray-400">צעדים</p>
+                            <p className="text-xs font-bold">{stats.steps}</p>
                         </div>
+                        <div className="bg-card p-3 rounded-2xl text-center">
+                            <p className="text-[9px] text-gray-400">משקל</p>
+                            <p className="text-xs font-bold">{stats.weight}</p>
+                        </div>
+                    </div>
+
+                    {/* Food Add Action */}
+                    <div className="bg-card p-4 rounded-2xl flex items-center justify-between cursor-pointer" onClick={() => alert('ממשק הוספת אוכל נפתח...')}>
+                        <span className="text-xs font-bold">+ הוסף אוכל</span>
+                        <div className="bg-green-500 w-8 h-8 rounded-full flex items-center justify-center text-black font-bold">+</div>
                     </div>
                 </div>
             );
