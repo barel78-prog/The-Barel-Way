@@ -3,55 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>הדרך של בראל</title>
+    <title>הדרך של בראל - Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
-    <style>body { background-color: #03060f; }</style>
+    <style>body { background-color: #03060f; touch-action: manipulation; }</style>
 </head>
 <body class="text-white antialiased select-none pb-28">
     <div id="root"></div>
+
     <script type="text/babel">
-
-        function MacroPanel({ calories, targetCalories, protein, targetProtein, carbs, targetCarbs, fat, targetFat, onTestClick }) {
-            return (
-                <div className="relative overflow-hidden rounded-2xl border border-[#162235] bg-gradient-to-b from-[#0b121f] to-[#070b14] p-5 shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
-                    <div className="grid grid-cols-12 gap-4 items-center">
-                        <div className="col-span-6 flex flex-col items-center">
-                            <div onTouchStart={onTestClick} onClick={onTestClick} className="w-32 h-32 rounded-full border-[5px] border-[#0e1624] flex flex-col items-center justify-center cursor-pointer">
-                                <span className="text-2xl font-black">{calories}</span>
-                            </div>
-                        </div>
-                        <div className="col-span-6 space-y-2">
-                             <div className="text-[10px]">🧪 חלבון: {protein}/{targetProtein}g</div>
-                             <div className="text-[10px]">🌾 פחמימות: {carbs}/{targetCarbs}g</div>
-                             <div className="text-[10px]">🔥 שומן: {fat}/{targetFat}g</div>
+        // רכיב המאקרו (החלק שכבר עבד מעולה)
+        const MacroPanel = ({ calories, onUpdate }) => (
+            <div className="rounded-2xl border border-[#162235] bg-gradient-to-b from-[#0b121f] to-[#070b14] p-5 shadow-xl">
+                <div className="grid grid-cols-12 gap-4 items-center">
+                    <div className="col-span-6 space-y-3">
+                        <h2 className="text-[11px] font-bold text-gray-400 border-b border-slate-800 pb-1">מאקרו-נוטריאנטים</h2>
+                        <div className="text-[10px]">🧪 חלבון: 160/210g</div>
+                        <div className="text-[10px]">🌾 פחמימות: 270/300g</div>
+                        <div className="text-[10px]">🔥 שומן: 70/85g</div>
+                    </div>
+                    <div className="col-span-6 flex flex-col items-center">
+                        <div onClick={onUpdate} className="w-24 h-24 rounded-full border-4 border-[#0e1624] border-t-lime-500 flex flex-col items-center justify-center cursor-pointer active:scale-95 transition-transform">
+                            <span className="text-[9px] text-gray-500">קלוריות</span>
+                            <span className="text-lg font-black">{calories}</span>
                         </div>
                     </div>
                 </div>
-            );
-        }
+            </div>
+        );
 
-        function WaterBottle() {
-            const [water, setWater] = React.useState(1250);
-            return (
-                <div className="mt-6 rounded-2xl border border-[#162235] bg-gradient-to-b from-[#0b121f] to-[#070b14] p-5">
-                    <h2 className="text-[11px] font-bold text-gray-400 uppercase">מים: {water}ml</h2>
-                    <div className="flex gap-4 mt-4">
-                        <button onClick={() => setWater(w => w + 250)} className="bg-cyan-900 px-4 py-2 rounded-lg text-xs">+250ml</button>
-                        <button onClick={() => setWater(w => w + 500)} className="bg-cyan-900 px-4 py-2 rounded-lg text-xs">+500ml</button>
-                    </div>
+        // רכיב הבקבוק (המים)
+        const WaterPanel = ({ water, onAdd }) => (
+            <div className="rounded-2xl border border-[#162235] bg-gradient-to-b from-[#0b121f] to-[#070b14] p-5">
+                <h2 className="text-[11px] font-bold text-gray-400 mb-3">צריכת מים: {water}ml</h2>
+                <div className="flex gap-2">
+                    <button onClick={() => onAdd(250)} className="flex-1 bg-cyan-900/50 py-2 rounded-lg text-[10px] border border-cyan-800">+250ml</button>
+                    <button onClick={() => onAdd(500)} className="flex-1 bg-cyan-900/50 py-2 rounded-lg text-[10px] border border-cyan-800">+500ml</button>
                 </div>
-            );
-        }
+            </div>
+        );
 
         function App() {
+            const [calories, setCalories] = React.useState(1650);
+            const [water, setWater] = React.useState(1250);
+
             return (
-                <div className="max-w-md mx-auto p-4">
-                    <h1 className="text-xl font-bold mb-4">בוקר טוב בראל 👋</h1>
-                    <MacroPanel calories={1650} targetCalories={2400} protein={160} targetProtein={210} carbs={270} targetCarbs={300} fat={70} targetFat={85} />
-                    <WaterBottle />
+                <div className="max-w-md mx-auto p-4 space-y-4">
+                    {/* Header */}
+                    <div className="flex justify-between items-center py-2">
+                        <div className="text-gray-500 text-xl">☰</div>
+                        <div className="text-center">
+                            <h1 className="text-sm font-bold">בוקר טוב, בראל 👋</h1>
+                            <p className="text-[9px] text-gray-600">26 ביוני 2026</p>
+                        </div>
+                        <div className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700"></div>
+                    </div>
+
+                    {/* המכלול */}
+                    <MacroPanel calories={calories} onUpdate={() => setCalories(c => c + 100)} />
+                    <WaterPanel water={water} onAdd={(amt) => setWater(w => w + amt)} />
+                    
+                    {/* כאן נוסיף את המשקל והצעדים בפעם הבאה, בלי לשבור כלום */}
                 </div>
             );
         }
