@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>הדרך של בראל לחיטוב</title>
+    <!-- טעינת Tailwind CSS לעיצוב ה-Dark Mode הזרחני -->
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-[#0b0f19]">
+    <div id="root"></div>
+    
+    <!-- טעינת ספריות קוד בסיסיות להרצת React ישירות בדפדפן -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    
+    <!-- חיבור קובץ האפליקציה של בראל -->
+    <script type="text/babel" src="App.jsx"></script>
+    
+    <script type="text/babel">
+      // פקודה שמפעילה את הדאשבורד מתוך App.jsx אל המסך
+      const root = ReactDOM.createRoot(document.getElementById('root'));
+      root.render(<Dashboard />);
+    </script>
+  </body>
+</html>
