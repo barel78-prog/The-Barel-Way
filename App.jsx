@@ -1,18 +1,32 @@
 import React, { useState } from 'react';
-import { Camera, Droplets, Footprints, Scale, Plus, Calendar, Bell, User } from 'lucide-react';
+import { Camera, Droplets, Footprints, Scale, Plus, Calendar, Bell, User, Utensils } from 'lucide-react';
 
 export default function Dashboard() {
-  // מדדי דוגמה מבוססי הדרישות של בראל
+  // מדדים מותאמים אישית עבור בראל
   const [calories, setCalories] = useState(1450);
   const targetCalories = 2400;
+  
   const [protein, setProtein] = useState(160);
   const targetProtein = 210;
+  
+  const [carbs, setCarbs] = useState(270);
+  const targetCarbs = 300;
+  
+  const [fat, setFat] = useState(70);
+  const targetFat = 85;
   
   const [water, setWater] = useState(1.8);
   const targetWater = 3.0;
   
   const [steps, setSteps] = useState(7200);
   const targetSteps = 10000;
+  
+  const [weight, setWeight] = useState(105.5); // עודכן למשקל העדכני שלך
+
+  // פונקציית דמה להפעלת סורק ה-AI
+  const handleAIScan = () => {
+    alert("סורק ה-AI מתחבר למצלמה... בשלב הבא נחבר את ה-API של Google Vision לניתוח המנה!");
+  };
 
   return (
     <div className="min-h-screen bg-[#0b0f19] text-white font-sans antialiased pb-24 selection:bg-lime-500 selection:text-black">
@@ -21,13 +35,13 @@ export default function Dashboard() {
       <header className="p-6 flex justify-between items-center max-w-md mx-auto">
         <div className="flex items-center space-x-3 space-x-reverse">
           <div className="w-10 h-10 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-xl">
-            👋
+            💪
           </div>
           <div>
-            <h1 className="text-lg font-bold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
+            <h1 className="text-lg font-bold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent text-right">
               בוקר טוב, בראל
             </h1>
-            <p className="text-xs text-gray-500 flex items-center gap-1 mt-0.5">
+            <p className="text-xs text-gray-500 flex items-center gap-1 mt-0.5 justify-end">
               <Calendar className="w-3 h-3" /> 26 ביוני 2026
             </p>
           </div>
@@ -49,7 +63,6 @@ export default function Dashboard() {
             {/* קלוריות - טבעת ויזואלית */}
             <div className="col-span-5 flex flex-col items-center justify-center relative">
               <div className="w-28 h-28 rounded-full border-4 border-slate-800 flex flex-col items-center justify-center relative shadow-[inset_0_0_20px_rgba(0,0,0,0.6)]">
-                {/* אפקט זוהר חצי עיגול ירוק */}
                 <div className="absolute inset-0 rounded-full border-4 border-t-lime-500 border-r-lime-400 border-b-transparent border-l-transparent drop-shadow-[0_0_8px_rgba(132,204,22,0.6)]"></div>
                 <span className="text-xs text-gray-400 font-medium">קלוריות</span>
                 <span className="text-2xl font-black text-white tracking-tight mt-0.5">{calories.toLocaleString()}</span>
@@ -58,12 +71,12 @@ export default function Dashboard() {
             </div>
 
             {/* מאקרו נוטריאנטים - דגש מוחלט על חלבון */}
-            <div className="col-span-7 space-y-4">
+            <div className="col-span-7 space-y-4 text-right">
               <div>
-                <div className="flex justify-between items-end mb-1">
-                  <span className="text-sm font-bold text-lime-400 flex items-center gap-1.5">
+                <div className="flex justify-between items-end mb-1 flex-row-reverse">
+                  <span className="text-sm font-bold text-lime-400 flex items-center gap-1.5 flex-row-reverse">
                     <span className="w-2 h-2 rounded-full bg-lime-400 block drop-shadow-[0_0_4px_#a3e635]"></span>
-                    חלבון הדגש
+                    חלבון (הדגש שלך)
                   </span>
                   <span className="text-xs text-gray-400 font-mono"><strong className="text-white text-sm">{protein}g</strong> / {targetProtein}g</span>
                 </div>
@@ -72,15 +85,15 @@ export default function Dashboard() {
                 </div>
               </div>
 
-              {/* פחמימות ושומנים כנתוני משנה קומפקטיים */}
-              <div className="grid grid-cols-2 gap-2 text-xs pt-1 border-t border-slate-800/40">
+              {/* פחמימות ושומנים */}
+              <div className="grid grid-cols-2 gap-2 text-xs pt-1 border-t border-slate-800/40 text-center">
                 <div>
                   <span className="text-gray-500 block">פחמימות</span>
-                  <span className="font-bold text-cyan-400 font-mono">140g</span>
+                  <span className="font-bold text-cyan-400 font-mono">{carbs}g / {targetCarbs}g</span>
                 </div>
                 <div>
                   <span className="text-gray-500 block">שומן</span>
-                  <span className="font-bold text-orange-400 font-mono">45g</span>
+                  <span className="font-bold text-orange-400 font-mono">{fat}g / {targetFat}g</span>
                 </div>
               </div>
             </div>
@@ -92,11 +105,11 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* AI PHOTO SCANNER - פיצ'ר הליבה של בראל */}
+        {/* AI PHOTO SCANNER */}
         <div className="bg-gradient-to-br from-slate-900/80 to-slate-950/40 backdrop-blur-xl border border-lime-500/30 rounded-2xl p-4 shadow-[0_0_25px_rgba(132,204,22,0.05)]">
-          <button className="w-full flex items-center justify-between group">
-            <div className="flex items-center space-x-3 space-x-reverse text-right">
-              <div className="w-12 h-12 rounded-xl bg-lime-500/10 border border-lime-500/30 flex items-center justify-center text-lime-400 group-hover:scale-105 transition-transform shadow-[0_0_15px_rgba(132,204,22,0.1)]">
+          <button onClick={handleAIScan} className="w-full flex items-center justify-between group flex-row-reverse">
+            <div className="flex items-center space-x-3 space-x-reverse text-right flex-row-reverse">
+              <div className="w-12 h-12 rounded-xl bg-lime-500/10 border border-lime-500/30 flex items-center justify-center text-lime-400 group-hover:scale-105 transition-transform shadow-[0_0_15px_rgba(132,204,22,0.1)] ml-3">
                 <Camera className="w-6 h-6 drop-shadow-[0_0_4px_rgba(132,204,22,0.6)]" />
               </div>
               <div>
@@ -144,10 +157,10 @@ export default function Dashboard() {
             <div className="text-purple-400 flex justify-center"><Scale className="w-5 h-5" /></div>
             <div>
               <span className="text-xs text-gray-400 block font-medium">משקל</span>
-              <span className="text-lg font-black text-white font-mono mt-0.5">84.2</span>
-              <span className="text-[10px] text-purple-400 font-bold block mt-0.5">ירידה של 0.4kg</span>
+              <span className="text-lg font-black text-white font-mono mt-0.5">{weight}</span>
+              <span className="text-[10px] text-purple-400 font-bold block mt-0.5">ק"ג נוכחי</span>
             </div>
-            <span className="text-[9px] text-gray-500 block">נשקל הבוקר</span>
+            <span className="text-[9px] text-gray-500 block">נשקל לאחרונה</span>
           </div>
 
         </div>
@@ -161,7 +174,7 @@ export default function Dashboard() {
           <span className="text-[10px] font-bold">דאשבורד</span>
         </button>
         <button className="flex flex-col items-center p-2 text-gray-500 hover:text-gray-300">
-          <Camera className="w-5 h-5 mb-1" />
+          <Utensils className="w-5 h-5 mb-1" />
           <span className="text-[10px]">יומן אוכל</span>
         </button>
         <button className="flex flex-col items-center p-2 text-gray-500 hover:text-gray-300">
