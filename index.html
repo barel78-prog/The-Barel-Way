@@ -8,7 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;700;900&display=swap" rel="stylesheet">
-    <!-- React 18 & @babel/standalone הגרסה המודרנית למניעת מסך שחור -->
+    <!-- React 18 & Babel Standalone core setup -->
     <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -22,7 +22,8 @@
 
     <div id="root"></div>
 
-    <script type="text/babel">
+    <!-- הגדרת הפרסטים קריטית למניעת מסכים לבנים/שחורים בדפדפנים מסוימים -->
+    <script type="text/babel" data-presets="env,react">
         function App() {
             // ניהול הטאב הפעיל באפליקציה
             const [activeTab, setActiveTab] = React.useState('dashboard'); 
@@ -32,7 +33,7 @@
                 calories: 2400, protein: 210, carbs: 300, fat: 85, water: 2.5, steps: 10000
             });
 
-            // יומן האוכל הראשי - כל המדדים בדאשבורד מחושבים דינמית ממנו
+            // יומן האוכל הראשי
             const [foodDiary, setFoodDiary] = React.useState([
                 { id: 1, name: 'חזה עוף מבושל ואורז לבן', calories: 900, protein: 90, carbs: 100, fat: 15, time: '13:15' },
                 { id: 2, name: 'שייק חלבון ויוגורט פרו', calories: 400, protein: 50, carbs: 20, fat: 5, time: '16:45' },
@@ -45,9 +46,9 @@
             });
 
             // ניהול חלוניות הזנה (Modals)
-            const [modalType, setModalType] = React.useState(null); // 'addWater' | 'addSteps' | 'addWeight' | 'cameraScan'
+            const [modalType, setModalType] = React.useState(null); 
             const [inputValue, setInputValue] = React.useState("");
-            const [scanStatus, setScanStatus] = React.useState('idle'); // 'idle' | 'loading' | 'done'
+            const [scanStatus, setScanStatus] = React.useState('idle'); 
             const [detectedFood, setDetectedFood] = React.useState(null);
 
             // חישוב אוטומטי ודינמי של אבות המזון והקלוריות מתוך היומן בלבד
@@ -70,9 +71,10 @@
                 return "לילה טוב";
             };
 
-            const calPercent = Math.min((totals.calories / targets.calories) * 100, 100);
-            const waterPercent = Math.min((progress.water / targets.water) * 100, 100);
-            const stepsPercent = Math.min((progress.steps / targets.steps) * 100, 100);
+            // הגנה מפני חלוקה באפס או בערכים ריקים בזמן שינוי הגדרות
+            const calPercent = targets.calories ? Math.min((totals.calories / targets.calories) * 100, 100) : 0;
+            const waterPercent = targets.water ? Math.min((progress.water / targets.water) * 100, 100) : 0;
+            const stepsPercent = targets.steps ? Math.min((progress.steps / targets.steps) * 100, 100) : 0;
 
             // סימולציית מצלמת AI לצילום המזון
             const handleCameraCapture = () => {
@@ -83,7 +85,7 @@
                         calories: 550, protein: 42, carbs: 35, fat: 18
                     });
                     setScanStatus('done');
-                }, 1800);
+                }, 1500);
             };
 
             const addScannedToDiary = () => {
@@ -99,7 +101,7 @@
             return (
                 <div className="max-w-md mx-auto px-4 pt-4 pb-24 space-y-4">
                     
-                    {/* Header העליון המדויק מתוך image_3.png */}
+                    {/* Header העליון */}
                     <div className="flex justify-between items-center py-2">
                         <div className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-xs shadow-inner cursor-pointer" onClick={() => setActiveTab('settings')}>👤</div>
                         <div className="flex items-center gap-2">
@@ -124,17 +126,17 @@
                                     <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">מאקרו-נוטריאנטים</div>
                                     <div className="space-y-1">
                                         <div className="flex justify-between text-[10px] font-medium"><span className="text-gray-300">🧪 חלבון</span><span className="text-gray-400">{totals.protein}/{targets.protein}g</span></div>
-                                        <div className="w-full bg-slate-900 h-1.5 rounded-full"><div className="bg-lime-500 h-full rounded-full transition-all" style={{ width: `${(totals.protein/targets.protein)*100}%` }}></div></div>
+                                        <div className="w-full bg-slate-900 h-1.5 rounded-full"><div className="bg-lime-500 h-full rounded-full transition-all" style={{ width: `${targets.protein ? (totals.protein/targets.protein)*100 : 0}%` }}></div></div>
                                     </div>
                                     <div className="space-y-1">
                                         <div className="flex justify-between text-[10px] font-medium"><span className="text-gray-300">🌾 פחמימות</span><span className="text-gray-400">{totals.carbs}/{targets.carbs}g</span></div>
-                                        <div className="w-full bg-slate-900 h-1.5 rounded-full"><div className="bg-cyan-500 h-full rounded-full transition-all" style={{ width: `${(totals.carbs/targets.carbs)*100}%` }}></div></div>
+                                        <div className="w-full bg-slate-900 h-1.5 rounded-full"><div className="bg-cyan-500 h-full rounded-full transition-all" style={{ width: `${targets.carbs ? (totals.carbs/targets.carbs)*100 : 0}%` }}></div></div>
                                     </div>
                                     <div className="space-y-1">
                                         <div className="flex justify-between text-[10px] font-medium"><span className="text-gray-300">🔥 שומן</span><span className="text-gray-400">{totals.fat}/{targets.fat}g</span></div>
-                                        <div className="w-full bg-slate-900 h-1.5 rounded-full"><div className="bg-orange-500 h-full rounded-full transition-all" style={{ width: `${(totals.fat/targets.fat)*100}%` }}></div></div>
+                                        <div className="w-full bg-slate-900 h-1.5 rounded-full"><div className="bg-orange-500 h-full rounded-full transition-all" style={{ width: `${targets.fat ? (totals.fat/targets.fat)*100 : 0}%` }}></div></div>
                                     </div>
-                                    <div className="inline-block bg-slate-950/80 px-2 py-0.5 rounded-full border border-slate-800 text-[9px] text-emerald-400 font-bold">↗ 120- קל' מאתמול</div>
+                                    <div className="relative inline-block bg-slate-950/80 px-2 py-0.5 rounded-full border border-slate-800 text-[9px] text-emerald-400 font-bold">↗ 120- קלוריות מאתמול</div>
                                 </div>
 
                                 <div className="w-1/2 flex flex-col items-center justify-center border-r border-slate-800/80 pl-2">
@@ -147,16 +149,16 @@
                                         <div className="absolute flex flex-col items-center justify-center">
                                             <span className="text-[9px] text-gray-400 font-bold tracking-wider">🔥 קלוריות</span>
                                             <span className="text-xl font-black font-mono tracking-tight">{totals.calories.toLocaleString()}</span>
-                                            <span className="text-[9px] text-gray-500">/ {targets.calories} קק"ל</span>
+                                            <span className="text-[9px] text-gray-500">/ {targets.calories} קק״ל</span>
                                         </div>
                                     </div>
                                     <p className="text-[9px] text-gray-400 mt-2 font-medium text-center">
-                                        {targets.calories - totals.calories > 0 ? `נותרו לך ${targets.calories - totals.calories} קק"ל ליעד` : 'הגעת אל היעד הקלורי!'}
+                                        {targets.calories - totals.calories > 0 ? `נותרו עוד ${targets.calories - totals.calories} קק״ל` : 'הגעת אל היעד הקלורי!'}
                                     </p>
                                 </div>
                             </div>
 
-                            {/* גריד התקדמות מים, צעדים ומשקל - לחיצים לחלוטין להוספת ערכים */}
+                            {/* גריד התקדמות מים, צעדים ומשקל */}
                             <div className="grid grid-cols-3 gap-3">
                                 
                                 {/* כרטיס משקל */}
@@ -164,9 +166,9 @@
                                     <div className="flex justify-between w-full items-center text-[10px] text-gray-400"><span>משקל</span><span>⚖️</span></div>
                                     <div className="my-2">
                                         <div className="bg-slate-950/60 border border-slate-800/80 p-1.5 rounded-xl text-center shadow-inner">
-                                            <p className="text-sm font-black text-purple-400 font-mono">{progress.weight} <span className="text-[8px] font-normal text-gray-400">ק"ג</span></p>
+                                            <p className="text-sm font-black text-purple-400 font-mono">{progress.weight} <span className="text-[8px] font-normal text-gray-400">ק״ג</span></p>
                                         </div>
-                                        <p className="text-[6.5px] text-gray-500 mt-1 text-center font-medium">שקילה אחרונה: {progress.lastWeightTime}</p>
+                                        <p className="text-[6.5px] text-gray-500 mt-1 text-center font-medium">שקילה: {progress.lastWeightTime}</p>
                                     </div>
                                     <div className="h-10 w-full bg-slate-950/40 rounded-lg border border-slate-900/60 overflow-hidden relative pt-2">
                                         <svg className="w-full h-full" viewBox="0 0 100 40">
@@ -176,7 +178,7 @@
                                     </div>
                                 </div>
 
-                                {/* כרטיס צעדים - לחיצה עליו מוסיפה צעדים שביצעת */}
+                                {/* כרטיס צעדים */}
                                 <div className="bg-card rounded-2xl p-3 flex flex-col justify-between cursor-pointer active:scale-95 transition-transform" onClick={() => setModalType('addSteps')}>
                                     <div className="flex justify-between w-full items-center text-[10px] text-gray-400"><span>צעדים</span><span>👟</span></div>
                                     <div className="my-2">
@@ -191,7 +193,7 @@
                                     <div className="flex justify-between text-[7px] text-gray-600 mt-1 font-mono"><span>00:00</span><span>12:00</span></div>
                                 </div>
 
-                                {/* כרטיס מים - לחיצה עליו מוסיפה מים ששתית */}
+                                {/* כרטיס מים */}
                                 <div className="bg-card rounded-2xl p-3 flex flex-col justify-between items-center cursor-pointer active:scale-95 transition-transform" onClick={() => setModalType('addWater')}>
                                     <div className="flex justify-between w-full items-center text-[10px] text-gray-400"><span>מים</span><span>💧</span></div>
                                     <div className="my-2 text-center">
@@ -213,7 +215,7 @@
                                     <div className="w-10 h-10 rounded-full bg-lime-500/20 border border-lime-500/40 flex items-center justify-center text-lime-400 font-bold text-xl shadow-lg shadow-lime-500/10">+</div>
                                     <div>
                                         <h3 className="text-xs font-bold text-gray-100">+ הוסף אוכל בצילום</h3>
-                                        <p className="text-[9px] text-gray-500">ניתוח רכיבים תזונתיים ב-AI 📸</p>
+                                        <p className="text-[9px] text-gray-500">ניתוח רכיבים בטכנולוגיית AI 📸</p>
                                     </div>
                                 </div>
                                 <div className="flex gap-2 overflow-x-auto custom-scrollbar pl-1">
@@ -227,7 +229,7 @@
                             <div className="bg-card rounded-2xl p-4 flex flex-col gap-2">
                                 <div className="flex justify-between items-center text-xs">
                                     <div className="flex items-center gap-2"><span>🎯</span><span className="font-bold">יעד יומי קלורי</span></div>
-                                    <span className="text-gray-400 text-[10px]">עוד {targets.calories - totals.calories > 0 ? targets.calories - totals.calories : 0} קק"ל</span>
+                                    <span className="text-gray-400 text-[10px]">עוד {targets.calories - totals.calories > 0 ? targets.calories - totals.calories : 0} קק״ל</span>
                                 </div>
                                 <div className="w-full bg-slate-950 h-2.5 rounded-full p-0.5 border border-slate-900">
                                     <div className="bg-gradient-to-r from-rose-500 to-pink-500 h-full rounded-full transition-all duration-300" style={{ width: `${calPercent}%` }}></div>
@@ -236,7 +238,7 @@
                         </>
                     )}
 
-                    {/* מסך 2: יומן אוכל - תיעוד של מה שנאכל במהלך היום */}
+                    {/* מסך 2: יומן אוכל */}
                     {activeTab === 'diary' && (
                         <div className="bg-card rounded-2xl p-4 space-y-4">
                             <h2 className="text-sm font-bold border-b border-slate-800 pb-2 text-lime-400">📝 יומן ארוחות ותיעוד יומי</h2>
@@ -249,7 +251,7 @@
                                             <span className="text-[8px] text-gray-600 font-mono">{item.time}</span>
                                         </div>
                                         <div className="flex items-center gap-3">
-                                            <span className="text-xs font-bold text-gray-300 font-mono">{item.calories} קק"ל</span>
+                                            <span className="text-xs font-bold text-gray-300 font-mono">{item.calories} קק״ל</span>
                                             <button className="text-red-400 text-xs font-bold px-2 py-1 bg-red-500/10 rounded-lg hover:bg-red-500/20" onClick={() => setFoodDiary(foodDiary.filter(f => f.id !== item.id))}>מחק</button>
                                         </div>
                                     </div>
@@ -258,7 +260,7 @@
                             </div>
                             <div className="pt-3 border-t border-slate-800 flex justify-between text-xs font-bold">
                                 <span className="text-gray-400">סיכום צריכה נוכחי:</span>
-                                <span className="text-lime-400">{totals.calories} קק"ל</span>
+                                <span className="text-lime-400">{totals.calories} קק״ל</span>
                             </div>
                         </div>
                     )}
@@ -280,40 +282,40 @@
                         </div>
                     )}
 
-                    {/* מסך 4: הגדרות לקביעת היעדים של בראל */}
+                    {/* מסך 4: הגדרות */}
                     {activeTab === 'settings' && (
                         <div className="bg-card rounded-2xl p-4 space-y-4">
                             <h2 className="text-sm font-bold border-b border-slate-800 pb-2 text-cyan-400">⚙️ הגדרות מערכת וקביעת יעדים יומיים</h2>
                             <div className="grid grid-cols-2 gap-3">
                                 <div className="space-y-1">
-                                    <label className="text-[10px] text-gray-400">יעד קלוריות (קק"ל)</label>
-                                    <input type="number" value={targets.calories} onChange={e => setTargets({...targets, calories: parseInt(e.target.value) || 0})} className="w-full bg-slate-950 border border-slate-800 p-2 rounded-xl text-center text-xs font-bold text-lime-400 focus:outline-none"/>
+                                    <label className="text-[10px] text-gray-400">יעד קלוריות (קק״ל)</label>
+                                    <input type="number" value={targets.calories || ''} onChange={e => setTargets({...targets, calories: parseInt(e.target.value) || 0})} className="w-full bg-slate-950 border border-slate-800 p-2 rounded-xl text-center text-xs font-bold text-lime-400 focus:outline-none"/>
                                 </div>
                                 <div className="space-y-1">
                                     <label className="text-[10px] text-gray-400">יעד חלבון (גרם)</label>
-                                    <input type="number" value={targets.protein} onChange={e => setTargets({...targets, protein: parseInt(e.target.value) || 0})} className="w-full bg-slate-950 border border-slate-800 p-2 rounded-xl text-center text-xs font-bold text-lime-400 focus:outline-none"/>
+                                    <input type="number" value={targets.protein || ''} onChange={e => setTargets({...targets, protein: parseInt(e.target.value) || 0})} className="w-full bg-slate-950 border border-slate-800 p-2 rounded-xl text-center text-xs font-bold text-lime-400 focus:outline-none"/>
                                 </div>
                                 <div className="space-y-1">
                                     <label className="text-[10px] text-gray-400">יעד פחמימות (גרם)</label>
-                                    <input type="number" value={targets.carbs} onChange={e => setTargets({...targets, carbs: parseInt(e.target.value) || 0})} className="w-full bg-slate-950 border border-slate-800 p-2 rounded-xl text-center text-xs font-bold text-cyan-400 focus:outline-none"/>
+                                    <input type="number" value={targets.carbs || ''} onChange={e => setTargets({...targets, carbs: parseInt(e.target.value) || 0})} className="w-full bg-slate-950 border border-slate-800 p-2 rounded-xl text-center text-xs font-bold text-cyan-400 focus:outline-none"/>
                                 </div>
                                 <div className="space-y-1">
                                     <label className="text-[10px] text-gray-400">יעד שומן (גרם)</label>
-                                    <input type="number" value={targets.fat} onChange={e => setTargets({...targets, fat: parseInt(e.target.value) || 0})} className="w-full bg-slate-950 border border-slate-800 p-2 rounded-xl text-center text-xs font-bold text-orange-400 focus:outline-none"/>
+                                    <input type="number" value={targets.fat || ''} onChange={e => setTargets({...targets, fat: parseInt(e.target.value) || 0})} className="w-full bg-slate-950 border border-slate-800 p-2 rounded-xl text-center text-xs font-bold text-orange-400 focus:outline-none"/>
                                 </div>
                                 <div className="space-y-1">
                                     <label className="text-[10px] text-gray-400">יעד מים (ליטר)</label>
-                                    <input type="number" step="0.1" value={targets.water} onChange={e => setTargets({...targets, water: parseFloat(e.target.value) || 0})} className="w-full bg-slate-950 border border-slate-800 p-2 rounded-xl text-center text-xs font-bold text-cyan-400 focus:outline-none"/>
+                                    <input type="number" step="0.1" value={targets.water || ''} onChange={e => setTargets({...targets, water: parseFloat(e.target.value) || 0})} className="w-full bg-slate-950 border border-slate-800 p-2 rounded-xl text-center text-xs font-bold text-cyan-400 focus:outline-none"/>
                                 </div>
                                 <div className="space-y-1">
                                     <label className="text-[10px] text-gray-400">יעד צעדים יומי</label>
-                                    <input type="number" value={targets.steps} onChange={e => setTargets({...targets, steps: parseInt(e.target.value) || 0})} className="w-full bg-slate-950 border border-slate-800 p-2 rounded-xl text-center text-xs font-bold text-lime-400 focus:outline-none"/>
+                                    <input type="number" value={targets.steps || ''} onChange={e => setTargets({...targets, steps: parseInt(e.target.value) || 0})} className="w-full bg-slate-950 border border-slate-800 p-2 rounded-xl text-center text-xs font-bold text-lime-400 focus:outline-none"/>
                                 </div>
                             </div>
                         </div>
                     )}
 
-                    {/* חלונות הזנה (Modals) מתפקדים לעדכון התקדמות אמיתית */}
+                    {/* חלונות הזנה (Modals) */}
                     {modalType && (
                         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-end justify-center z-50 p-4" onClick={() => setModalType(null)}>
                             <div className="bg-[#0b1324] border border-[#16243d] rounded-t-3xl p-6 w-full max-w-md space-y-4" onClick={e => e.stopPropagation()}>
@@ -322,8 +324,8 @@
                                     <>
                                         <h3 className="text-sm font-bold border-b border-slate-800 pb-2 text-cyan-400">💧 כמה מים שתית עכשיו?</h3>
                                         <div className="grid grid-cols-3 gap-2">
-                                            <button onClick={() => { setProgress({...progress, water: progress.water + 0.25}); setModalType(null); }} className="bg-slate-950 p-3 rounded-xl border border-slate-800 text-xs font-bold text-cyan-400">+ 250 מ"ל</button>
-                                            <button onClick={() => { setProgress({...progress, water: progress.water + 0.5}); setModalType(null); }} className="bg-slate-950 p-3 rounded-xl border border-slate-800 text-xs font-bold text-cyan-400">+ 500 מ"ל</button>
+                                            <button onClick={() => { setProgress({...progress, water: progress.water + 0.25}); setModalType(null); }} className="bg-slate-950 p-3 rounded-xl border border-slate-800 text-xs font-bold text-cyan-400">+ 250 מ׳ל</button>
+                                            <button onClick={() => { setProgress({...progress, water: progress.water + 0.5}); setModalType(null); }} className="bg-slate-950 p-3 rounded-xl border border-slate-800 text-xs font-bold text-cyan-400">+ 500 מ׳ל</button>
                                             <button onClick={() => { setProgress({...progress, water: progress.water + 1.0}); setModalType(null); }} className="bg-slate-950 p-3 rounded-xl border border-slate-800 text-xs font-bold text-cyan-400">+ 1 ליטר</button>
                                         </div>
                                     </>
@@ -331,7 +333,7 @@
 
                                 {modalType === 'addSteps' && (
                                     <>
-                                        <h3 className="text-sm font-bold border-b border-slate-800 pb-2 text-lime-400">👟 הזן צעדים שביצעת עכשיו כדי להוסיף להתקדמות</h3>
+                                        <h3 className="text-sm font-bold border-b border-slate-800 pb-2 text-lime-400">👟 הזן צעדים שביצעת עכשיו</h3>
                                         <input type="number" placeholder="לדוגמה: 1500" value={inputValue} onChange={e => setInputValue(e.target.value)} className="w-full bg-slate-950 border border-slate-800 p-3 rounded-xl text-center text-lg font-bold text-lime-400 focus:outline-none"/>
                                         <button onClick={() => { if(parseInt(inputValue)){ setProgress({...progress, steps: progress.steps + parseInt(inputValue)}); } setInputValue(""); setModalType(null); }} className="w-full bg-lime-500 py-3 rounded-xl text-black font-bold text-xs">עדכן התקדמות צעדים</button>
                                     </>
@@ -340,7 +342,7 @@
                                 {modalType === 'addWeight' && (
                                     <>
                                         <h3 className="text-sm font-bold border-b border-slate-800 pb-2 text-purple-400">⚖️ עדכון שקילת גוף נוכחית</h3>
-                                        <input type="number" step="0.1" placeholder="הזן משקל עדכני בק"ג" value={inputValue} onChange={e => setInputValue(e.target.value)} className="w-full bg-slate-950 border border-slate-800 p-3 rounded-xl text-center text-lg font-bold text-purple-400 focus:outline-none"/>
+                                        <input type="number" step="0.1" placeholder="הזן משקל עדכני בק׳ג" value={inputValue} onChange={e => setInputValue(e.target.value)} className="w-full bg-slate-950 border border-slate-800 p-3 rounded-xl text-center text-lg font-bold text-purple-400 focus:outline-none"/>
                                         <button onClick={() => { if(parseFloat(inputValue)){ const timeStr = new Date().toLocaleTimeString('he-IL', {hour: '2-digit', minute:'2-digit'}); setProgress({...progress, weight: parseFloat(inputValue), lastWeightTime: `היום, ${timeStr}`}); } setInputValue(""); setModalType(null); }} className="w-full bg-purple-500 py-3 rounded-xl text-white font-bold text-xs">שמור שקילה מעודכנת</button>
                                     </>
                                 )}
@@ -363,7 +365,7 @@
                                         )}
                                         {scanStatus === 'done' && detectedFood && (
                                             <div className="bg-slate-950 p-4 rounded-xl text-right space-y-2 border border-slate-900">
-                                                <p className="text-xs font-bold text-lime-400">🔍 המנה זוהתה בהצלחה ע"י המערכת:</p>
+                                                <p className="text-xs font-bold text-lime-400">🔍 המנה זוהתה בהצלחה על ידי המערכת:</p>
                                                 <p className="text-sm font-bold text-white">{detectedFood.name}</p>
                                                 <div className="grid grid-cols-4 gap-1 text-center text-[10px] bg-slate-900 p-2 rounded-lg mt-2">
                                                     <div><p className="text-gray-400">קלוריות</p><p className="font-bold font-mono">{detectedFood.calories}</p></div>
@@ -384,7 +386,7 @@
                         </div>
                     )}
 
-                    {/* בר ניווט תחתון קבוע ואינטראקטיבי - תואם במדויק ל-image_3.png */}
+                    {/* בר ניווט תחתון */}
                     <div className="fixed bottom-0 left-0 right-0 bg-[#070b14]/95 backdrop-blur-md border-t border-[#16243d] py-2 px-6 z-40">
                         <div className="max-w-md mx-auto flex justify-between items-center">
                             <div className={`flex flex-col items-center cursor-pointer ${activeTab === 'settings' ? 'text-lime-400' : 'text-gray-500'}`} onClick={() => setActiveTab('settings')}>
@@ -395,7 +397,7 @@
                             </div>
                             <div className="w-12 h-12 bg-gradient-to-tr from-lime-500 to-emerald-400 rounded-full flex items-center justify-center text-black font-black text-xl shadow-lg shadow-lime-500/30 -mt-5 cursor-pointer transform active:scale-90 transition-transform" onClick={() => setModalType('cameraScan')}>+</div>
                             <div className={`flex flex-col items-center cursor-pointer ${activeTab === 'diary' ? 'text-lime-400' : 'text-gray-500'}`} onClick={() => setActiveTab('diary')}>
-                                <span className="text-lg">4️⃣9️⃣</span><span className="text-[8px] font-bold mt-0.5">יומן אוכל</span>
+                                <span className="text-lg">📋</span><span className="text-[8px] font-bold mt-0.5">יומן אוכל</span>
                             </div>
                             <div className={`flex flex-col items-center cursor-pointer ${activeTab === 'dashboard' ? 'text-lime-400' : 'text-gray-500'}`} onClick={() => setActiveTab('dashboard')}>
                                 <span className="text-lg">📊</span><span className="text-[8px] font-bold mt-0.5">דאשבורד</span>
